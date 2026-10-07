@@ -1,9 +1,12 @@
 import validator from "validator";
 
 import bcrypt from "bcryptjs";
+
+import { genrateAuthTokenAndSetCookie } from "../lib/utils/genAuthToken.js";
 import User from "../models/userModel.js";
 
 export const signup = async (req, res) => {
+  console.log(req.body);
   try {
     const { email, password, username, fullname } = req.body;
 
@@ -11,12 +14,12 @@ export const signup = async (req, res) => {
       return res.status(400).json({ error: "invalid email " });
     }
 
-    const existingUser = await User.findOn({ username });
+    const existingUser = await User.findOne({ username });
 
     if (existingUser) {
       return res.status(400).json({ error: "username is already taken" });
     }
-    const existingEmail = await User.findOn({ email });
+    const existingEmail = await User.findOne({ email });
 
     if (existingEmail) {
       return res.status(400).json({ error: "email is already in use" });
@@ -53,6 +56,6 @@ export const signup = async (req, res) => {
       res.status(400).json({ error: "invalid user data" });
     }
   } catch (error) {
-    res.status(500).json({ error: "internal server error" });
+    res.status(500).json({ error: error.message });
   }
 };

@@ -7,7 +7,9 @@ dotenv.config();
 
 const app = express();
 
-app.use("/", authRouter);
+app.use(express.json());
+
+app.use("/api/v1", authRouter);
 
 mongoose
   .connect("mongodb://localhost/twitter")
