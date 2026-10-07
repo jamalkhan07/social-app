@@ -59,3 +59,31 @@ export const signup = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+export const login = async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    const user = await User.findOne({ username });
+
+    const isPasswordOkay = await bcrypt.compare(password, user?.password || "");
+
+    if (!user || !isPasswordOkay) {
+      return res.status(400).json({ error: "invalid credentials" });
+    }
+    genAuthTokenAndSetCookie(user._id, res);
+
+    res.status(200).json({
+      _id: user._id,
+      fullname: user.fullname,
+      username: user.username,
+      email: user.email,
+      followers: user.followers,
+      following: user.following,
+      profileImg: user.profilImg,
+      coverImg: user.coverImg,
+    });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+};
