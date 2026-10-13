@@ -49,9 +49,13 @@ export const signup = async (req, res) => {
         email: newUser.email,
         followers: newUser.followers,
         following: newUser.following,
-        profileImg: newUser.profilImg,
+        profileImg: newUser.profileImg,
         coverImg: newUser.coverImg,
+        bio: newUser.bio,
+        link: newUser.link,
       });
+
+      console.log(newUser);
     } else {
       res.status(400).json({ error: "invalid user data" });
     }
@@ -61,30 +65,34 @@ export const signup = async (req, res) => {
 };
 
 export const login = async (req, res) => {
-  try {
-    const { username, password } = req.body;
+  const { username, password } = req.body;
 
+  try {
     const user = await User.findOne({ username });
 
-    const isPasswordOkay = await bcrypt.compare(password, user?.password || "");
+    const isPasswordOk = await bcrypt.compare(password, user?.password || "");
 
-    if (!user || !isPasswordOkay) {
+    if (!user || !isPasswordOk) {
       return res.status(400).json({ error: "invalid credentials" });
     }
-    genAuthTokenAndSetCookie(user._id, res);
+
+    genrateAuthTokenAndSetCookie(user._id, res);
 
     res.status(200).json({
       _id: user._id,
-      fullname: user.fullname,
       username: user.username,
+      fullname: user.fullname,
       email: user.email,
       followers: user.followers,
       following: user.following,
-      profileImg: user.profilImg,
+      profileImg: user.profileImg,
       coverImg: user.coverImg,
+      bio: user.bio,
+      link: user.link,
     });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
+  } catch (error) {
+    console.log("error in login controller", error.message);
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -92,17 +100,20 @@ export const logout = async (req, res) => {
   try {
     res.cookie("jwt", "", { maxAge: 0 });
 
-    res.status(200).json({ message: "loged out successfully" });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
+    res.status(200).json({ message: "logout seccessfully" });
+  } catch (error) {
+    console.log("error in logout controller", error.message);
+    res.status(500).json({ error: error.message });
   }
 };
 
 export const getMe = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id).select("-password");
+    const user = req.user;
+
     res.status(200).json(user);
-  } catch (e) {
-    res.status(500).json({ error: e.message });
+  } catch (error) {
+    console.log("error in getMe controller", error.message);
+    res.status(500).json({ error: error.message });
   }
 };

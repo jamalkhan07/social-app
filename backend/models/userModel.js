@@ -24,35 +24,35 @@ const userSchema = new mongoose.Schema(
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
-        defualt: [],
+        default: [],
       },
     ],
     following: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
-        defualt: [],
+        default: [],
       },
     ],
     profileImg: {
       type: String,
-      defualt: "",
+      default: "",
     },
     coverImg: {
       type: String,
-      defualt: "",
+      default: "",
     },
     bio: {
       type: String,
-      defulat: "",
+      default: "",
     },
     link: {
       type: String,
-      defulat: "",
+      default: "",
     },
   },
   { timestamps: true }
 );
 
-const User = mongoose.model("User", userSchema);
-export default User;
+// const User =
+export default mongoose.model("User", userSchema);
