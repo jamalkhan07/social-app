@@ -1,5 +1,6 @@
 import User from "../models/userModel.js";
 import Notification from "../models/notificationModel.js";
+
 export const getUserProfile = async (req, res) => {
   const { username } = req.params;
 
@@ -51,6 +52,34 @@ export const followUnfollowUser = async (req, res) => {
     }
   } catch (error) {
     console.log("error in following controller  ", error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const suggestedUsers = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const userFollowedByMe = await User.findById(userId).select("following");
+
+    const users = await User.aggregate([
+      {
+        $match: { _id: { $ne: userId } },
+      },
+      {
+        $sample: { size: 12 },
+      },
+    ]);
+
+    const filterUsers = users.filter(
+      (user) => !userFollowedByMe.following.includes(user._id)
+    );
+
+    const suggestedUser = filterUsers.slice(0, 4);
+    suggestedUser.forEach((user) => (user.password = null));
+    res.send(suggestedUser);
+  } catch (error) {
+    console.log("in suggested user controller", error.message);
     res.status(500).json({ error: error.message });
   }
 };
