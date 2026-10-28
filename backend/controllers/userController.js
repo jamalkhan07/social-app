@@ -140,6 +140,8 @@ export const updateUser = async (req, res) => {
 
       user.password = hashedPassword || user.password;
     }
+
+    // cover and profile image will be remining for later
     if (coverImg) {
     }
     if (profileImg) {
