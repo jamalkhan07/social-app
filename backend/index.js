@@ -6,6 +6,7 @@ import cookieParser from "cookie-parser";
 
 import authRouter from "./routes/authRoute.js";
 import userRouter from "./routes/userRoutes.js";
+import postRouter from "./routes/postRoutes.js";
 
 dotenv.config();
 
@@ -17,6 +18,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/v1", authRouter);
 app.use("/api/v1", userRouter);
+app.use("/api/v1/post", postRouter);
 
 mongoose
   .connect("mongodb://localhost/twitter")
