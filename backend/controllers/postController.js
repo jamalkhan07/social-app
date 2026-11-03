@@ -1,5 +1,6 @@
 import User from "../models/userModel.js";
 import Post from "../models/postModel.js";
+import mongoose from "mongoose";
 export const createPost = async (req, res) => {
   try {
     const { text, img } = req.body;
@@ -36,7 +37,9 @@ export const deletePost = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // if(mongoos.is)
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ error: "wrong format mongo id" });
+    }
 
     const post = await Post.findById(id);
 
