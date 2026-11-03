@@ -1,6 +1,7 @@
 import User from "../models/userModel.js";
 import Post from "../models/postModel.js";
 import mongoose from "mongoose";
+
 export const createPost = async (req, res) => {
   try {
     const { text, img } = req.body;
@@ -11,6 +12,7 @@ export const createPost = async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: "user does not exist!" });
     }
+
     if (!text && !img) {
       return res.status(400).json({ error: "post must have text or image" });
     }
@@ -64,6 +66,30 @@ export const deletePost = async (req, res) => {
     res.status(200).json({ message: "post deleted successfuly" });
   } catch (error) {
     console.log("error in delete post controller  ", error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const commentOnPost = async (req, res) => {
+  try {
+    const { text } = req.body;
+    const { id } = req.params;
+    // console.log(postId);
+    const userId = req.user._id;
+
+    const post = await Post.findById(id);
+
+    if (!post) return res.status(404).json({ error: "post does not exist!" });
+
+    const comment = { user: userId, text };
+
+    post.comments.push(comment);
+
+    await post.save();
+
+    res.status(201).json(comment);
+  } catch (error) {
+    console.log("error in comment on post controller  ", error.message);
     res.status(500).json({ error: error.message });
   }
 };
