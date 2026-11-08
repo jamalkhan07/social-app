@@ -14,10 +14,12 @@ const postSchema = new mongoose.Schema(
     img: {
       type: String,
     },
-    like: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-    },
+    like: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
     comments: [
       {
         text: { type: String, required: true },
