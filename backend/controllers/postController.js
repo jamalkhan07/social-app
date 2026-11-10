@@ -1,6 +1,7 @@
 import User from "../models/userModel.js";
 import Post from "../models/postModel.js";
 import mongoose from "mongoose";
+import Notification from "../models/notificationModel.js";
 
 export const createPost = async (req, res) => {
   try {
@@ -90,6 +91,65 @@ export const commentOnPost = async (req, res) => {
     res.status(201).json(comment);
   } catch (error) {
     console.log("error in comment on post controller  ", error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const likeUnlikePost = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const { id: postId } = req.params;
+
+    const post = await Post.findById(postId);
+
+    if (!post) {
+      return res.status(404).json({ error: "post not found" });
+    }
+
+    const isLike = post.likes.includes(userId);
+
+    if (isLike) {
+      await Post.updateOne({ _id: postId }, { $pull: { likes: userId } });
+
+      res.status(200).json({ message: "post unliked" });
+    } else {
+      post.likes.push(userId);
+
+      await post.save();
+
+      const notification = new Notification({
+        from: userId,
+        to: post.user,
+        type: "like",
+      });
+
+      await notification.save();
+
+      res.status(200).json({ message: "post liked" });
+    }
+  } catch (error) {
+    console.log("error in likeUnlike on post controller  ", error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const getAllPosts = async (req, res) => {
+  try {
+    const posts = await Post.find()
+      .sort({ createdAt: -1 })
+      .populate("user", "-password")
+      .populate("comments.user", " fullname bio profileImg coverImg")
+      .populate("likes", "username profileImg -_id");
+    //   .select("-password");
+
+    if (!posts) {
+      return res.status(200).json({ message: [] });
+    }
+
+    res.status(200).json(posts);
+  } catch (error) {
+    console.log("error in getAllPost on post controller  ", error.message);
     res.status(500).json({ error: error.message });
   }
 };
